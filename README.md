@@ -8,11 +8,16 @@ This project is designed to practice **Python game programming**, including hand
 ---
 👨‍💻 Team Members:
 
-1.Gururaj.H/n
+1.Gururaj.H 
+
 2.Girish MJ
-3.Janavi
+
+3.Janavi 
+
 4.Huda seher
+
 5.Joy shiba
+
 6.Hastu Jain
 
 ## Features
