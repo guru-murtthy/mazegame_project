@@ -8,7 +8,7 @@ This project is designed to practice **Python game programming**, including hand
 ---
 👨‍💻 Team Members:
 
-1.Gururaj.H
+1.Gururaj.H/n
 2.Girish MJ
 3.Janavi
 4.Huda seher
