@@ -6,6 +6,14 @@ A simple maze game built with Python where the player navigates through a grid-b
 This project is designed to practice **Python game programming**, including handling input, rendering a maze, and implementing basic game logic.
 
 ---
+👨‍💻 Team Members:
+
+1.Gururaj.H
+2.Girish MJ
+3.Janavi
+4.Huda seher
+5.Joy shiba
+6.Hastu Jain
 
 ## Features
 
@@ -66,7 +74,7 @@ https://github.com/guru-murtthy/mazegame_project.git
 
 ---
 
-## Contributing
+## Contributors:
 
 Pull requests are welcome.  
 If you have ideas for new mechanics, levels, or refactors, feel free to open an issue or submit a PR.
