@@ -43,6 +43,22 @@ This project is designed to practice **Python game programming**, including hand
 1. **Clone the repository**
 https://github.com/guru-murtthy/mazegame_project.git
 
+2. **Create a virtual environment (optional but recommended)**
+   
+python -m venv venv
+source venv/bin/activate # Linux/macOS
+venv\Scripts\activate # Windows
+
+
+
+3. **Install dependencies**
+pip install -r requirements.txt
+
+
+
+4. **Run the game**
+python main.py
+
 
 ---
 
