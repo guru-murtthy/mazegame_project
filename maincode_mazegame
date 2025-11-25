@@ -1,0 +1,173 @@
+import pygame
+import random
+import time
+
+pygame.init()
+
+SCREEN_WIDTH, SCREEN_HEIGHT = 600, 600
+TILE_SIZE = 40
+ROWS, COLS = SCREEN_HEIGHT // TILE_SIZE, SCREEN_WIDTH // TILE_SIZE
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT + 50))
+pygame.display.set_caption("Maze Game with Dual Controls and Time Save")
+clock = pygame.time.Clock()
+font = pygame.font.SysFont('Arial', 25)
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 150, 255)
+GREEN = (0, 255, 0)
+
+class Cell:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+        self.walls = {'top': True, 'right': True, 'bottom': True, 'left': True}
+        self.visited = False
+
+    def draw(self, surface):
+        x, y = self.x * TILE_SIZE, self.y * TILE_SIZE
+        if self.walls['top']:
+            pygame.draw.line(surface, WHITE, (x, y), (x + TILE_SIZE, y), 2)
+        if self.walls['right']:
+            pygame.draw.line(surface, WHITE, (x + TILE_SIZE, y), (x + TILE_SIZE, y + TILE_SIZE), 2)
+        if self.walls['bottom']:
+            pygame.draw.line(surface, WHITE, (x, y + TILE_SIZE), (x + TILE_SIZE, y + TILE_SIZE), 2)
+        if self.walls['left']:
+            pygame.draw.line(surface, WHITE, (x, y), (x, y + TILE_SIZE), 2)
+
+    def highlight(self, surface):
+        x, y = self.x * TILE_SIZE, self.y * TILE_SIZE
+        pygame.draw.rect(surface, BLUE, (x + 2, y + 2, TILE_SIZE - 4, TILE_SIZE - 4))
+
+def generate_maze():
+    grid = [[Cell(x, y) for y in range(ROWS)] for x in range(COLS)]
+    stack = []
+    current = grid[0][0]
+    current.visited = True
+    while True:
+        neighbors = []
+        directions = [('top', (0, -1)), ('right', (1, 0)), ('bottom', (0, 1)), ('left', (-1, 0))]
+        for direction, (dx, dy) in directions:
+            nx, ny = current.x + dx, current.y + dy
+            if 0 <= nx < COLS and 0 <= ny < ROWS and not grid[nx][ny].visited:
+                neighbors.append((direction, grid[nx][ny]))
+        if neighbors:
+            direction, next_cell = random.choice(neighbors)
+            if direction == 'top':
+                current.walls['top'] = False
+                next_cell.walls['bottom'] = False
+            elif direction == 'right':
+                current.walls['right'] = False
+                next_cell.walls['left'] = False
+            elif direction == 'bottom':
+                current.walls['bottom'] = False
+                next_cell.walls['top'] = False
+            elif direction == 'left':
+                current.walls['left'] = False
+                next_cell.walls['right'] = False
+            stack.append(current)
+            current = next_cell
+            current.visited = True
+        elif stack:
+            current = stack.pop()
+        else:
+            break
+    return grid
+
+class Player:
+    def __init__(self):
+        self.x, self.y = 0, 0
+        self.color = RED
+        self.size = TILE_SIZE // 2
+        self.rect = pygame.Rect(self.x * TILE_SIZE + TILE_SIZE // 4, self.y * TILE_SIZE + TILE_SIZE // 4,
+                                self.size, self.size)
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, self.color, self.rect)
+
+    def move(self, dx, dy, maze):
+        new_x, new_y = self.x + dx, self.y + dy
+        if 0 <= new_x < COLS and 0 <= new_y < ROWS:
+            current_cell = maze[self.x][self.y]
+            if dx == -1 and not current_cell.walls['left']:
+                self.x = new_x
+            if dx == 1 and not current_cell.walls['right']:
+                self.x = new_x
+            if dy == -1 and not current_cell.walls['top']:
+                self.y = new_y
+            if dy == 1 and not current_cell.walls['bottom']:
+                self.y = new_y
+            self.rect.x = self.x * TILE_SIZE + TILE_SIZE // 4
+            self.rect.y = self.y * TILE_SIZE + TILE_SIZE // 4
+
+def draw_timer(surface, start_time):                    \\ for file creation to store the time of the completion automatically it is created 
+    elapsed_time = int(time.time() - start_time)
+    mins = elapsed_time // 60
+    secs = elapsed_time % 60
+    timer_text = font.render(f"Time: {mins:02}:{secs:02}", True, WHITE)
+    surface.blit(timer_text, (10, SCREEN_HEIGHT + 10))
+    return elapsed_time
+
+def display_message(surface, message):
+    message_font = pygame.font.SysFont('Arial', 40)
+    text = message_font.render(message, True, GREEN)
+    rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    surface.blit(text, rect)
+    pygame.display.flip()
+    pygame.time.delay(3000)
+
+def save_time(elapsed_seconds):
+    with open("maze_game_times.txt", "a") as file:
+        mins = elapsed_seconds // 60
+        secs = elapsed_seconds % 60
+        file.write(f"Completion time: {mins:02}:{secs:02}\n")
+
+def main():
+    maze = generate_maze()
+    player = Player()
+    start_time = time.time()
+    goal = (COLS - 1, ROWS - 1)
+
+    running = True
+    while running:
+        screen.fill(BLACK)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            player.move(-1, 0, maze)
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            player.move(1, 0, maze)
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
+            player.move(0, -1, maze)
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+            player.move(0, 1, maze)
+
+        for col in maze:
+            for cell in col:
+                cell.draw(screen)
+
+        gx, gy = goal
+        pygame.draw.rect(screen, GREEN, (gx * TILE_SIZE + 2, gy * TILE_SIZE + 2, TILE_SIZE - 4, TILE_SIZE - 4))
+
+        maze[player.x][player.y].highlight(screen)
+        player.draw(screen)
+
+        elapsed = draw_timer(screen, start_time)
+
+        pygame.display.flip()
+        clock.tick(30)
+
+        if (player.x, player.y) == goal:
+            display_message(screen, "You reached the goal!")
+            save_time(elapsed)
+            running = False
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
